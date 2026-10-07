@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Surat Masuk</title>
+  <style>
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #1e3a5f;
+}
+
+h2 {
+    color: #1e3a5f;
+}
+
+input {
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    background: #1e5aa8;
+    color: white;
+    cursor: pointer;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th {
+    background: #1e3a5f;
+    color: white;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #ddd;
+    margin: 25px 0;
+}
+
+a {
+    color: #1e5aa8;
+    text-decoration: none;
+    font-weight: bold;
+}
+button {
+    font-size: 14px;
+    padding: 9px 14px;
+}
+
+input {
+    width: 90%;
+    max-width: 350px;
+    box-sizing: border-box;
+}
+
+table {
+    font-size: 14px;
+}
+  @media print {
+
+    body {
+        background: white;
+        color: black;
+        padding: 10px;
+    }
+
+    form,
+    input,
+    button,
+    a,
+    hr {
+        display: none;
+    }
+
+    h1 {
+        text-align: center;
+        color: black;
+    }
+
+    h2 {
+        color: black;
+        text-align: center;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        border: 1px solid black;
+        padding: 8px;
+        color: black;
+    }
+
+    th {
+        background: white;
+    }
+}
+  
+</style>
+  
+</head>
+
+<body>
+
+<h1>DATA SURAT MASUK</h1>
+
+<hr>
+
+<h2>Input Surat Masuk</h2>
+
+<form id="formSurat">
+
+    <p>
+        Nomor Surat:<br>
+        <input type="text" id="nomor" required>
+    </p>
+
+    <p>
+        Tanggal Surat:<br>
+        <input type="date" id="tanggal" required>
+    </p>
+
+    <p>
+        Asal Surat:<br>
+        <input type="text" id="asal" required>
+    </p>
+
+    <p>
+        Perihal:<br>
+        <input type="text" id="perihal" required>
+    </p>
+
+    <button type="submit">Simpan Data</button>
+
+</form>
+
+<hr>
+
+<h2>Daftar Surat Masuk</h2>
+  <button onclick="window.print()">🖨️ Cetak Data</button>
+
+<p>
+    🔍 Cari Surat:
+    <br>
+    <input
+        type="text"
+        id="cari"
+        placeholder="Cari nomor, asal, atau perihal..."
+    >
+</p>
+
+<table border="1" cellpadding="8">
+
+    <thead>
+        <tr>
+            <th>No</th>
+            <th>Nomor Surat</th>
+            <th>Tanggal</th>
+            <th>Asal</th>
+            <th>Perihal</th>
+          <th>Aksi</th>
+        </tr>
+    </thead>
+
+    <tbody id="daftarSurat">
+    </tbody>
+
+</table>
+
+<hr>
+
+<p>
+    <a href="index.html">⬅ Kembali ke Menu Utama</a>
+</p>
+
+<script>
+
+let dataSurat = JSON.parse(
+    localStorage.getItem("suratMasuk")
+) || [];
+
+const form = document.getElementById("formSurat");
+const daftar = document.getElementById("daftarSurat");
+const cari = document.getElementById("cari");
+
+
+function tampilkanData(data = dataSurat) {
+
+    daftar.innerHTML = "";
+
+    data.forEach(function(surat) {
+
+        let index = dataSurat.indexOf(surat);
+
+        let baris = document.createElement("tr");
+
+        baris.innerHTML =
+            "<td>" + (index + 1) + "</td>" +
+            "<td>" + surat.nomor + "</td>" +
+            "<td>" + surat.tanggal + "</td>" +
+            "<td>" + surat.asal + "</td>" +
+            "<td>" + surat.perihal + "</td>" +
+            "<td><button onclick='hapusData(" + index + ")'>Hapus</button></td>";
+
+        daftar.appendChild(baris);
+
+    });
+
+}
+
+
+form.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    let surat = {
+
+        nomor: document.getElementById("nomor").value,
+
+        tanggal: document.getElementById("tanggal").value,
+
+        asal: document.getElementById("asal").value,
+
+        perihal: document.getElementById("perihal").value
+
+    };
+
+    dataSurat.push(surat);
+
+    localStorage.setItem(
+        "suratMasuk",
+        JSON.stringify(dataSurat)
+    );
+
+    form.reset();
+
+    tampilkanData();
+
+    alert("Data surat berhasil disimpan!");
+
+});
+
+
+function hapusData(index) {
+
+    dataSurat.splice(index, 1);
+
+    localStorage.setItem(
+        "suratMasuk",
+        JSON.stringify(dataSurat)
+    );
+
+    tampilkanData();
+
+}
+
+
+/* FITUR PENCARIAN */
+
+cari.addEventListener("input", function() {
+
+    let kata = cari.value.toLowerCase();
+
+    let hasil = dataSurat.filter(function(surat) {
+
+        return (
+            surat.nomor.toLowerCase().includes(kata) ||
+            surat.asal.toLowerCase().includes(kata) ||
+            surat.perihal.toLowerCase().includes(kata)
+        );
+
+    });
+
+    tampilkanData(hasil);
+
+});
+
+
+tampilkanData();
+
+</script>
+
+</body>
+
+</html>
